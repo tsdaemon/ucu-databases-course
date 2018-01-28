@@ -1,25 +1,110 @@
 \documentclass[12pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage{hyperref}
+\usepackage{indentfirst}
 
 \newcommand{\code}[1]{\texttt{#1}}
 
 \begin{document}
 
-\title{Practical assignment 0: Environment}
+\title{Practical assignment 1: Baby steps}
 \author{Anatolii Stehnii\\Intro to databases}
 \maketitle
 
-This assignment is an instruction on the environment setup for the following practical assignments. I recommend you to do this assignment before the start of practical lessons.
+\section*{Description}
+
+The goal of this assignment is to create a simple database schema for our application \code{ucubot} and write application logic to store records in the database and use it in reports.
+
+\section*{Conventions}
+
+This assignment will be tested by automated end-to-end tests, therefore all your manual actions in database (table creation, user creation etc) should be reflected in corresponding \code{.sql} files. I strictly advise you to use environment setup (DotNetCore2.0+MySQL) described in assignment 0 to ensure compatibility of your results with testing and production environments.
+
+All file names are specified relatively to your \code{ucubot} repository location.
+
+Note that for C\# accepted convention is to use \code{CamelCase} identifiers, while in MySQL names are usually \code{snake\_case}. Therefore a table \code{bot\_signal} corresponds to a class and an UML diagram \code{BotSignal}.
+
+\section*{Recommendations}
+
+Each practical assignment could contain some information not covered in lectures. But this should not stop you from its fulfillment. I encourage you to use Google to fill gaps in your practical knowledge\footnote{rtfm}. However, to reduce ambiguity between different information sources, I have added list of recommended links with hints for each unknown point in the end of the assignment. It is no shame to use it, but first try to find information by yourself.
+
+\code{master} branch of repository \code{ucubot} contains working code of the application. But hold the temptation to watch it or copy the code. All your work should be performed in branch \code{learning} only by yourself without code copying. Please do not share your code with the colleagues or in the Slack channel.
+
+If you have any issues with this assignment, please reach me in Slack @Anatolii Stehnii or send an email to \href{mailto:stehnii@ucu.edu.ua}{stehnii@ucu.edu.ua}. Feel free to use course Slack channel to ask questions and help your colleagues. If you have any new ideas or improvements, feel free to send pull-request to repository \href{https://github.com/tsdaemon/ucu-databases-course}{ucu-databases-course}. Your colleagues will be grateful if you make this instructions better.
+
+\section*{Instructions}
+\subsection*{Database creation}
 
 \begin{enumerate}
-\item Install IDE \href{https://www.jetbrains.com/rider/download/}{JetBrains Rider}. If you have not done this yet, obtain JetBrains student license \href{https://www.jetbrains.com/student/}{here} and activate Rider.
-\item Install \href{https://www.microsoft.com/net/learn/get-started}{.NET Core 2.0 SDK}. Instructions for different Linux repositories can be found  \href{https://docs.microsoft.com/ru-ru/dotnet/core/linux-prerequisites?tabs=netcore2x}{here}.
-\item Install \href{https://www.mysql.com/}{MySQL} (Instructions for \href{https://www.digitalocean.com/community/tutorials/how-to-install-mysql-on-ubuntu-16-04}{Ubuntu}). Kindly advise you to remember the root password. For Windows, do not forget to add the path to an executable \code{mysql.exe} to \code{PATH} variable.
-\item Fork and clone git repository \href{https://github.com/tsdaemon/ucubot}{ucubot}.
-
+\item Connect to your \code{MySQL} instance as \code{root} user.
+\begin{verbatim}
+mysql -u root -p
+\end{verbatim}
+\item Create database \code{ucubot} and create a new user with all privileges on database \code{ucubot}. Save your commands in \code{./ucubot/Scritps/db.sql}.
+\item Finish root session.
 \end{enumerate}
 
-If you have any issues with this assignment, please reach me in Slack or send email to \href{mailto:stehnii@ucu.edu.ua}{stehnii@ucu.edu.ua}. Environment setup always raises questions, so do not hesitate to ask for my help. If you have any new ideas or improvements, feel free to send pull-request to repository \href{https://github.com/tsdaemon/ucu-databases-course}{ucu-databases-course}. Your colleagues will be grateful if you make this instructions better.
+\subsection*{Schema creation}
+
+\begin{enumerate}
+\item Connect to \code{MySQL} as the previously created user.
+\item Create a table \code{lesson\_signal} according to UML diagram located in \break \code{./ucubot/Schema/database.puml}. Save your commands in \break \code{./ucubot/Scritps/lesson-signal.sql}
+\end{enumerate}
+
+\subsection*{Connection setup}
+
+\begin{enumerate}
+\item In a directory \code{./ucubot/} create a configuration file \code{appconfig.Db.json} with the following content:
+\begin{verbatim}
+{
+  "ConnectionStrings": {
+    "BotDatabase": ""
+  }
+}
+\end{verbatim}
+\item Generate connection string for the database and user created in the previous section and put it into \code{BotDatabase} property of your config.
+\end{enumerate}
+
+\subsection*{Retrieving data}
+
+\begin{enumerate}
+\item Open the file \code{./Controllers/LessonSignalEndpointController.cs} and navigate to the function \code{ShowSignals}.
+\item Replace a \code{TODO} and \code{return} statement with your code.
+\begin{enumerate}
+\item Open connection to database using variable \code{connectionString}(use \code{MySqlConnection} instead of default \code{SqlConnection}).
+\item Write a query, which selects all data from the table  \code{lesson\_signal} and stores it in a \code{DataTable} object.
+\item Iterate over \code{DataTable} rows and convert each into a \code{LessonSignalDto} object.
+\item Return all \code{LessonSignalDto} objects stored in any \code{IEnumerable} container: \code{List, array, iterator etc}.
+\item Do not forget to close your connection.
+\end{enumerate}
+\item Repeat the same actions in the function \code{ShowSignal} to get a single \code{LessonSignalDto} by id. Do not forget to check if result contains any record.
+\end{enumerate}
+
+\subsection*{Storing and deleting data}
+
+\begin{enumerate}
+\item Navigate to the function \code{CreateSignal}.
+\item Replace a \code{TODO} with your code. Write an SQL command which inserts a new record in the table \code{lesson\_signal}.
+\item Navigate to the function \code{RemoveSignal}.
+\item Replace a \code{TODO} with your code. Write an SQL command which removes a record from the table.
+\end{enumerate}
+
+\subsection*{Test}
+
+Finally, run your application in a debug mode. Test each function of your API using any suitable application (for example, \href{https://www.getpostman.com/}{Postman}). Make sure, that each function works correctly and check it's behavior in corner cases (for example, what if delete function is executed for non exist record?).
+
+\clearpage
+
+\section*{Hints}
+How to \dots
+\begin{itemize}
+\item \dots \href{https://dev.mysql.com/doc/refman/5.7/en/creating-database.html}{create database}.
+\item \dots \href{https://www.digitalocean.com/community/tutorials/mysql-ru}{create user}.
+\item \dots \href{https://dev.mysql.com/doc/refman/5.5/en/creating-tables.html}{create table}.
+\item \dots \href{https://dev.mysql.com/doc/refman/5.7/en/example-auto-increment.html}{create identity column}.
+\item \dots \href{https://www.connectionstrings.com/mysql/}{generate MySQL connection string}.
+\item \dots \href{https://stackoverflow.com/questions/6073382/read-sql-table-into-c-sharp-datatable}{read from sql database with ADO.NET.}
+\item \dots \href{https://docs.microsoft.com/en-us/dotnet/framework/data/adonet/executing-a-command}{execute SQL command.}
+
+\end{itemize}
 
 \end{document}
