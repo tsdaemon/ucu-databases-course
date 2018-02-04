@@ -19,7 +19,7 @@ The goal of this assignment is to create a simple database schema for our applic
 
 \section*{Conventions}
 
-This assignment will be tested by automated end-to-end tests, therefore all your manual actions in database (table creation, user creation etc) should be reflected in corresponding \code{.sql} files. I strictly advise you to use environment setup (DotNetCore2.0+MySQL) described in assignment 0 to ensure compatibility of your results with testing and production environments.
+This assignment will be tested by automated functional tests, therefore all your manual actions in database (table creation, user creation etc) should be reflected in corresponding \code{.sql} files. I strictly advise you to use environment setup (DotNetCore2.0+MySQL) described in assignment 0 to ensure compatibility of your results with testing and production environments.
 
 All file names are specified relatively to your \code{ucubot} repository location.
 
@@ -95,6 +95,13 @@ mysql -u root -p
 \subsection*{Test}
 
 Finally, run your application in a debug mode. Your endpoint will be located here: \code{http://localhost:5000/api/LessonSignalEndpoint}. Test each function of your API using any suitable REST client (for example, \href{https://www.getpostman.com/}{Postman}). For example, to test function \code{RemoveSignal} you need to send a \code{DELETE} http request to a url \code{http://localhost:5000/api/LessonSignalEndpoint/\{id\}}. Make sure, that each function works correctly and check it's behavior in corner cases (for example, what if delete function is executed for non exist record?).
+
+\section*{Evaluation}
+To submit your solution, create a pull-request from your branch \code{learning} to my branch \code{learning} and submit a link to your PR in the CMS. Your solution should contain SQL scripts to create database and schema. It also should implement REST endpoint \code{LessonSignalEndpoint} with functions for select all records, select one record, insert a record and delete a record.
+
+All solutions will be tested with an automated test workflow. It can be run by a script \code{run-integration-tests.sh}. This script requires Docker and Docker Compose to run. But I can not guarantee you that I won't add new tests after the deadline.
+
+I give you a credit for one mistake. This means, if the test fails, I will show you the error and give a chance to resubmit your solution. But only once. Please be careful with your submissions.
 
 \clearpage
 
