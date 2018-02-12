@@ -94,7 +94,7 @@ mysql -u root -p
 
 \subsection*{Test}
 
-Finally, run your application in a debug mode. Your endpoint will be located here: \code{http://localhost:5000/api/LessonSignalEndpoint}. Test each function of your API using any suitable REST client (for example, \href{https://www.getpostman.com/}{Postman}). For example, to test function \code{RemoveSignal} you need to send a \code{DELETE} http request to a url \code{http://localhost:5000/api/LessonSignalEndpoint/\{id\}}. Make sure, that each function works correctly and check it's behavior in corner cases (for example, what if delete function is executed for non exist record?).
+Finally, run your application in a debug mode. Your endpoint will be located here: \code{http://localhost:5000/api/LessonSignalEndpoint}. Test each function of your API using any suitable REST client (for example, \href{https://www.getpostman.com/}{Postman}). For example, to test function \code{RemoveSignal} you need to send a \code{DELETE} http request to a url \code{http://localhost:5000/api/LessonSignalEndpoint/\{id\}}. To test function \code{CreateSignal} you need to send a \code{POST} http request to the same url with parameters \code{user\_id} and \code{text}. Make sure, that each function works correctly and check it's behavior for corner cases (for example, what if delete function is executed for non exist record?).
 
 \section*{Evaluation}
 To submit your solution, create a pull-request from your branch \code{learning} to my branch \code{learning} and submit a link to your PR in the CMS. Your solution should contain SQL scripts to create database and schema. It also should implement REST endpoint \code{LessonSignalEndpoint} with functions for select all records, select one record, insert a record and delete a record.
