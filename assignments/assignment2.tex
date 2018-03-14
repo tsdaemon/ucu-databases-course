@@ -15,27 +15,27 @@
 
 \section*{Description}
 
-Second assignment purpose is to add a second table \code{student} into our application and create association between \code{lesson\_signal} and \code{student}. Also, this time you will use ORM to map SQL results to your application classes.
+The purpose of the second assignment  is to add a second table \code{student} into our application and create association between \code{lesson\_signal} and \code{student}. Also, this time you will use ORM to map SQL results to your application classes.
 
 \section*{Conventions}
 
-This assignment will be tested by automated functional tests, therefore all your manual actions in database (table creation, user creation etc) should be reflected in corresponding \code{.sql} files. I strictly advise you to use environment setup (DotNetCore2.0+MySQL) described in assignment 0 to ensure compatibility of your results with testing and production environments.
+This assignment will be tested by automated functional tests, therefore all your manual actions in a database (table creation, user creation etc) should be reflected in a corresponding \code{.sql} files. I strictly advise you to use environment setup (DotNetCore2.0+MySQL) described in assignment 0 to ensure compatibility of your results with testing and production environments.
 
-All file names are specified relatively to your \code{ucubot} repository location.
+All file names are specified relative to your \code{ucubot} repository location.
 
-Note that for C\# accepted convention is to use \code{CamelCase} identifiers, while in MySQL names are usually \code{snake\_case}. Therefore a table \code{bot\_signal} corresponds to a class and an UML diagram \code{BotSignal}.
+Note that for C\# an accepted convention is to use \code{CamelCase} identifiers, while in MySQL names are usually \code{snake\_case}. Therefore a table \code{lesson\_signal} corresponds to a class and an UML diagram \code{LessonSignal}.
 
 \section*{Recommendations}
 
-Each practical assignment could contain some information not covered in lectures. But this should not stop you from its fulfillment. I encourage you to use Google to fill gaps in your practical knowledge\footnote{rtfm}. However, to reduce ambiguity between different information sources, I have added list of recommended links with hints for each unknown point in the end of the assignment. It is no shame to use it, but first try to find information by yourself.
+Each practical assignment could contain some information not covered in lectures. But this should not stop you from its fulfillment. I encourage you to use Google to fill gaps in your practical knowledge. However, to reduce ambiguity between different information sources, I have added a list of recommended links with hints for each unknown point at the end of the assignment. It is no shame to use it, but first, try to find information by yourself.
 
-\code{master} branch of repository \code{ucubot} contains working code of the application. But hold the temptation to watch it or copy the code. All your work should be performed in branch \code{learning} only by yourself without code copying. Please do not share your code with the colleagues or in the Slack channel.
-
-If you have any issues with this assignment, please reach me in Slack @Anatolii Stehnii or send an email to \href{mailto:stehnii@ucu.edu.ua}{stehnii@ucu.edu.ua}. Feel free to use course Slack channel to ask questions and help your colleagues. If you have any new ideas or improvements, feel free to send pull-request to repository \href{https://github.com/tsdaemon/ucu-databases-course}{ucu-databases-course}. Your colleagues will be grateful if you make this instructions better.
+If you have any issues with this assignment, please reach me in Slack @Anatolii Stehnii or send an email to \href{mailto:stehnii@ucu.edu.ua}{stehnii@ucu.edu.ua}. Use course Slack channel to ask questions and help your colleagues. If you have any new ideas or improvements, please send pull-request to repository \href{https://github.com/tsdaemon/ucu-databases-course}{ucu-databases-course}. Your colleagues will be grateful if you make this instruction better.
 
 \section*{Instructions}
 
 \subsection*{New table}
+
+Storing information about a student in the table \code{lesson\_signal} breaks normalization of this table and contradicts general data modeling recommendations. Therefore we need to create a separate table for students.
 
 \begin{enumerate}
 \item Connect to \code{MySQL}.
@@ -48,20 +48,24 @@ class Student {
     UserId: string
 }
 \end{verbatim}
+Note: what constraint you should put on column UserId?
 \item Save all SQL code in \break \code{./ucubot/Scritps/student.sql}.
 \end{enumerate}
 
 \subsection*{Changes in lesson\_signal}
 
+Now both tables \code{lesson\_signal} and {student} contain column \code{user\_id}. To finish the decomposition of table \code{lesson\_signal}, we need to replace this column with a reference to a corresponding record in the table \code{student}.
+
 \begin{enumerate}
 
 \item Connect to \code{MySQL}.
 \item Remove column \code{user\_id} from table \code{lesson\_signal}.
-\item Add foreign key column \code{student\_id} with reference to table \code{student}. Set restrict referential policy for UPDATE and DELETE actions.
+\item Add foreign key column \code{student\_id} with reference to table \code{student}. Set a restrict referential policy for UPDATE and DELETE actions.
+\item Save all SQL code in \break \code{./ucubot/Scritps/lesson\_signal2.sql}.
 
 \end{enumerate}
 
-NOTE: If you have records in table \code{lesson\_signal}, adding foreign key column may result in error because table \code{student} yet have no records to be referenced. Consider two options as a solution:
+NOTE: If you have records in table \code{lesson\_signal}, adding foreign key column may result in an error because table \code{student} have no records to be referenced yet. Consider following options as a solution:
 
 \begin{itemize}
 
@@ -69,17 +73,71 @@ NOTE: If you have records in table \code{lesson\_signal}, adding foreign key col
 
 \dots or \dots
 
-\item Allow null values in the field \code{student\_id}.
+\item Write a custom script to migrate data.
 
 \end{itemize}
 
+\subsection*{Using association in \code{LessonSignal} endpoint}
+
+You have decomposed table \code{lesson\_signal} and extracted information about student in the separate table \code{student}. Therefore you need to update \code{LessonSignal} endpoint code to support  this association.
+
+\begin{enumerate}
+\item Rewrite function \code{CreateSignal}. It should check if student with such \code{UserId} exists before creation and should not create a lesson signal record if it finds no student. Return HTTP status 400 BAD REQUEST in this case. If student exists, function should use its \code{id} to create a new record.
+\item Rewrite functions \code{ShowSignal} and \code{ShowSignals} to use JOIN in query to select columns required for \code{LessonSignalDto} from two tables.
+\end{enumerate}
+
+\subsection*{Using ORM in \code{LessonSignal} endpoint}
+
+Object-relational mapping - a common way to reduce the amount of code needed to map an SQL query result to statically typed objects in your application. Using ORM you don't need to write code to convert each \code{DataRow} to object, this will be done for you by a library.
+
+\begin{enumerate}
+\item Install NuGet package \code{Dapper} in project \code{ucubot}.
+\item Add \code{using Dapper;} at the using section of \code{LessonSignalEndpointController.cs}.
+
+DapperNET extends all \code{MySqlConnection} objects with a generic function \code{Query<T>}. Using this function, you can specify your target class \code{LessonSignalDto} as a generic type parameter (instead of \code{T}) and map your SQL query results directly to an enumeration of \code{LessonSignalDto} objects.
+
+You can use DapperNET not only for queries, but also for non-query commands. Use connection extension functions \code{Execute} or \code{ExecuteScalar}. This functions can be handy for mapping command parameters from any object. Refer to DapperNET documentation for examples.
+
+\item Rewrite functions \code{ShowSignal} and \code{ShowSignals} to get rid of \code{DataTable} parsing, using function \code{Query<T>} instead.
+\end{enumerate}
+
+Note: \code{LessonSignalDto} and SQL table \code{lesson\_signal} has different names of properties and columns. It is not a problem: to map query results into objects rename your columns using operator \code{AS} in your \code{SELECT} clause to match property names.
+
+\subsection*{Adding REST endpoint for table \code{student}}
+
+Finally, you need to implement a new endpoint to manage records in table \code{student}. Use \code{LessonSignalEnpointController} as a reference. Use here Dapper as well. I prepared class \code{Student} in \code{/ucubot/Model} and you can use it in your code to map queries or to accept values from POST and PUT requests.
+
+\begin{enumerate}
+\item Create new controller class \code{StudentEndpointController} in \code{/ucubot/Controllers}.
+\item Implement functions to query for all records and query for one record. Mark them with attributes \code{[HttpGet]} and \code{[HttpGet("\{id\}")]} respectively. Map query results to a class \code{Models.Student}.
+\item Implement function to create record. Mark it with attributes \code{[HttpPost]}. Use class \code{Models.Student} as an argument. Note, that constraint on field \code{UserId} may be violated. Return status code 409 (Conflict) if there is a problem.
+\item Implement function to update single record. Use attribute \code{[HttpPut]}. Use class \code{Student} as an argument. Use \code{student.Id} as update WHERE predicate.
+\item Implement function to delete a record. Note, that a foreign key reference puts some restriction on DELETE operations in a target table and check for a possible error. Return status code 409 (Conflict) if there is a problem.
+\end{enumerate}
+
+\section*{Submit}
+
+Please DO NOT SHARE your code with the colleagues or in the Slack channel!
+
+To prevent code stealing from PRs this assignment should be submitted in a following way:
+\begin{enumerate}
+\item Make you repository private.
+\item Add me (\code{tsdaemon}) as a repository collaborator.
+\item Submit a link to your working branch in CMS.
+\end{enumerate}
 
 \clearpage
 
 \section*{Hints}
 How to \dots
 \begin{itemize}
-\item \dots \href{https://dev.mysql.com/doc/refman/5.6/en/create-table-foreign-keys.html}{create FOREIGN KEY}.
+\item \dots \href{https://dev.mysql.com/doc/refman/5.6/en/create-table-foreign-keys.html}{create foreign key}.
+\item \dots return HTTP 400 from your action: return \code{BadRequest()} instead of \code{Accepted()}.
+\item \dots return HTTP 409 from your action: return \code{StatusCode(409)} instead of \code{Accepted()}.
+\item \dots \href{https://dev.mysql.com/doc/refman/5.7/en/join.html}{JOIN table in query}.
+\item \dots \href{https://www.jetbrains.com/help/rider/Using_NuGet.html}{install NuGet package}.
+\item \dots \href{https://github.com/StackExchange/Dapper}{use Dapper.NET}.
 \end{itemize}
+
 
 \end{document}
