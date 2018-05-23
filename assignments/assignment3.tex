@@ -55,7 +55,7 @@ Think: what line is often repeated in your database code? Can it be a separate r
 The previous section described only a refactoring of previously created code. Now we will add new functions to the application. We will create a view to show a report about a number of different signals for each student. Use a class definition below as a reference:
 
 \begin{verbatim}
-class StudentSignals {
+class StudentSignal {
     FirstName: string,
     LastName: string,
     SignalType: string, allowed values - [Simple, Normal, Hard],
@@ -63,11 +63,13 @@ class StudentSignals {
 }
 \end{verbatim}
 
+The class \code{StudentSignal} should correctly override Equals() method.
+
 \begin{enumerate}
 \item Connect to MySQL. Write a select query which aggregates a number of lesson signals by type by student. Transform numerical signal types into meaningful type names (\code{Simple, Normal, Hard}). Save this select as a view \code{student\_signals}. Save your code into \code{Scripts/student-signals.sql}.
-\item Create a class \code{StudentSignals} to represent records of this view.
+\item Create a class \code{StudentSignal} to represent records of this view.
 \item Create a new repository with a query to this view.
-\item Create a new controller \code{StudentSignalsEndpointController} with one \code{HttpGet} action, which shows all records in \code{student\_signals} view.
+\item Create a new controller \code{StudentSignalEndpointController} with one \code{HttpGet} action, which shows all records in \code{student\_signals} view.
 \end{enumerate}
 
 \section*{Submit}
