@@ -35,8 +35,8 @@ If you have any issues with this assignment, please reach me or course assistant
 \begin{verbatim}
 mysql -u root -p
 \end{verbatim}
-\item Create database \code{university}.
-\item Create a new user with all privileges on database \code{university}. Set user host to \code{\%}
+\item Create database \code{university}. Use character set \code{utf8mb4} and collation \code{utf8mb4\_general\_ci} to prevent problems with Cyrillic symbols.
+\item Create a new user with all privileges on database \code{university}. Set user host to \code{\%}.
 \item Save your commands in \code{./db.sql}.
 \item Finish root session.
 \end{enumerate}
@@ -63,8 +63,10 @@ mysql -u root -p
   \hline
 \end{tabular}
 
-\item Load CSV file with sample data into the table.
 \item Store your commands in \code{./table.sql}.
+
+\item Load CSV file with sample data into the table. You can use either \code{LOAD DATA} command or special tools like MySQL Workbench. \textbf{You should not include load data code in \code{./table.sql}}.
+
 
 \end{enumerate}
 
@@ -137,9 +139,9 @@ mysql -u root -p
 
 To submit your solution, pack all code files in a single \textbf{zip} archive. Submit it on assignment page in CMS. After a successful solution upload, you will get a link to the CircleCI build page, which will show you the progress of your solution test.
 
-\uppercase{\textbf{Please test your solution carefully before submission!}}\footnote{I am very aggressive when I waste my time on untested submissions.}
+\uppercase{\textbf{Please test your solution carefully before submission!}}
 
-I give you credit for \textbf{one} submission fail. This means, if your test fails, you can check test response, correct your solution, and resubmit it. All the following errors will be penalized.
+I give you credit for \textbf{two} submission fails. This means, if your test fails, you can check test response, correct your solution, and resubmit it two times. All the following submission failures will be penalized.
 
 If you have any issues or errors during submission, please contact me or Mykhailo Poliakov.
 
