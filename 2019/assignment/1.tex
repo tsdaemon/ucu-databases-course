@@ -37,7 +37,7 @@ mysql -u root -p
 \end{verbatim}
 \item Create database \code{university}. Use character set \code{utf8mb4} and collation \code{utf8mb4\_general\_ci} to prevent problems with Cyrillic symbols.
 \item Create a new user with all privileges on database \code{university}. Set user host to \code{\%}.
-\item Save your commands in \code{db.sql}.
+\item Save your SQL commands in \code{db.sql}. \textbf{Please do not store anything else besides SQL in your submission.}
 \item Finish root session.
 \end{enumerate}
 
@@ -63,7 +63,7 @@ mysql -u root -p
   \hline
 \end{tabular}
 
-\item Store your SQL commands in \code{table.sql}.
+\item Store your SQL code in \code{table.sql}.
 
 \item Load CSV file with sample data into the table. You can use either \code{LOAD DATA} command or special tools like MySQL Workbench. \textbf{You should not include load data code in \code{table.sql}}.
 
@@ -73,13 +73,13 @@ mysql -u root -p
 \subsection*{Selecting data}
 
 \begin{enumerate}
-\item Select all students from your cohort, order by first name. Store this select as \code{select1.sql}.
+\item Select all students from your cohort, order by first name. Store your SQL code as \code{select1.sql}.
 
-\item Select all students from your cohort, order by first name and last name  in reverse to alphabetical. Store your code as \code{select2.sql}.
+\item Select all students from your cohort, order by first name and last name  in reverse to alphabetical. Store your SQL code as \code{select2.sql}.
 
-\item Select all students which has the same first letter in a first name as you. Order by the result of assignment 1 mark descending. Store your code as \code{select3.sql}.
+\item Select all students which has the same first letter in a first name as you. Order by the result of assignment 1 mark descending. Store your SQL code as \code{select3.sql}.
 
-\item Select first name, last name and average mark for students not from your cohort. Average mark is a mean value for assignment 1 mark and assignment 2 marks. Store your code as \code{select4.sql}.
+\item Select first name, last name and average mark for students not from your cohort. Average mark is a mean value for assignment 1 mark and assignment 2 marks. Store your SQL code as \code{select4.sql}.
 
 \end{enumerate}
 
@@ -91,7 +91,7 @@ mysql -u root -p
 
 \item Think up one more new student. Add information about him in the table.
 
-\item Store your code as \code{insert.sql}.
+\item Store your SQL code as \code{insert.sql}.
 
 \end{enumerate}
 
@@ -109,7 +109,7 @@ mysql -u root -p
 
 \item Find your friend in the table and repeat steps 3 and 4 for him.
 
-\item Store your code as \code{update.sql}.
+\item Store your SQL code as \code{update.sql}.
 
 \end{enumerate}
 
@@ -119,7 +119,7 @@ mysql -u root -p
 
 \item Find somebody you want to expel (not literally) and delete his record.
 
-\item Store your code as \code{delete.sql}.
+\item Store your SQL code as \code{delete.sql}.
 
 \end{enumerate}
 
@@ -131,13 +131,13 @@ mysql -u root -p
 
 \item Specify which transport use you and your friend.
 
-\item Store your code as \code{transport.sql}.
+\item Store your SQL code as \code{transport.sql}.
 
 \end{enumerate}
 
 \section*{Submission}
 
-To submit your solution, pack all code files in a single \textbf{zip} archive. Submit it on assignment page in CMS. After a successful solution upload, you will get a link to the CircleCI build page, which will show you the progress of your solution test.
+To submit your solution, pack all files in a single \textbf{zip} archive. Submit it on assignment page in CMS. After a successful solution upload, you will get a link to the CircleCI build page, which will show you the progress of your solution test.
 
 \uppercase{\textbf{Please test your solution carefully before submission!}}
 
