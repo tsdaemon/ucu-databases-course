@@ -37,14 +37,14 @@ mysql -u root -p
 \end{verbatim}
 \item Create database \code{university}. Use character set \code{utf8mb4} and collation \code{utf8mb4\_general\_ci} to prevent problems with Cyrillic symbols.
 \item Create a new user with all privileges on database \code{university}. Set user host to \code{\%}.
-\item Save your commands in \code{./db.sql}.
+\item Save your commands in \code{db.sql}.
 \item Finish root session.
 \end{enumerate}
 
 \subsection*{Schema and sample data}
 
 \begin{enumerate}
-\item Open spreadsheet with sample data \href{https://docs.google.com/spreadsheets/d/1fnpOlVMEQZJb3E07pDOHItz0ckAT2glQu6Vu9-_axvo/edit?usp=sharing}{here} and export it as CSV to your working folder as  \code{./students.csv}.
+\item Open spreadsheet with sample data \href{https://docs.google.com/spreadsheets/d/1fnpOlVMEQZJb3E07pDOHItz0ckAT2glQu6Vu9-_axvo/edit?usp=sharing}{here} and export it as CSV to your working folder as  \code{students.csv}.
 \item Connect to \code{MySQL} as the previously created user.
 \item Create a table with the same fields (except you also need an ID) as in the sample data:
 
@@ -63,9 +63,9 @@ mysql -u root -p
   \hline
 \end{tabular}
 
-\item Store your commands in \code{./table.sql}.
+\item Store your SQL commands in \code{table.sql}.
 
-\item Load CSV file with sample data into the table. You can use either \code{LOAD DATA} command or special tools like MySQL Workbench. \textbf{You should not include load data code in \code{./table.sql}}.
+\item Load CSV file with sample data into the table. You can use either \code{LOAD DATA} command or special tools like MySQL Workbench. \textbf{You should not include load data code in \code{table.sql}}.
 
 
 \end{enumerate}
