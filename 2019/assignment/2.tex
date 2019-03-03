@@ -1,0 +1,281 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{hyperref}
+\usepackage{indentfirst}
+
+\hypersetup{ colorlinks, citecolor=green, filecolor=black, linkcolor=blue, urlcolor=blue }
+
+\newcommand{\code}[1]{\texttt{#1}}
+
+\begin{document}
+
+\title{Practical Assignment 2: Associations in SQL}
+\author{Anatolii Stehnii\\Data architecture}
+\maketitle
+
+\section*{Intoduction}
+The goal of this assignment is to give you an understanding of how database schema is formed from multiple relations. You will build a book's example of the \code{University} database with your own data.
+
+\section*{Conventions}
+
+This assignment will be tested by automated functional tests, therefore all your  actions in the database (table creation, user creation, insert, update) should be reflected in the corresponding \code{.sql} files. I recommend you to use the same environment (MySQL 5.7) when doing this assignment to ensure the compatibility of your results with the testing environment.
+
+\section*{Recommendations}
+
+Each practical assignment could contain some information not covered in lectures. But this should not stop you from its fulfillment. I encourage you to use Google to fill gaps in your practical knowledge\footnote{rtfm}. However, to reduce ambiguity between different information sources, I have added a list of recommended links with hints for each unknown point at the end of the assignment. It is no shame to use it, but first try to find information by yourself.
+
+If you have any issues with this assignment, please reach me or course assistant Mykhailo Poliakov. Feel free to use the course Slack channel to ask questions and help your colleagues. If you have any new ideas or improvements, please to send pull-request to repository \href{https://github.com/tsdaemon/ucu-databases-course}{ucu-databases-course}. Your colleagues will be grateful if you make these instructions better.
+
+\section*{Instructions}
+
+General idea of this assignment is to transform the previously created table students into a set of tables, where each table corresponds to a separate entity.\footnote{This is called schema normalization.}. To do that, you need to re-create all students data in a new schema.
+
+\subsection*{Exporting data}
+
+\begin{enumerate}
+\item Export all data from table \code{students} to a CSV file \code{students.csv}. \textbf{Do not include column \code{id}.}
+\item Drop table \code{students}.
+\end{enumerate}
+
+\subsection*{New schema}
+
+\begin{enumerate}
+\item Connect to \code{MySQL} .
+\item Create a set of tables with a following structure:
+
+\begin{tabular}{| l | l | }
+  \hline
+  \multicolumn{2}{|c|}{\textbf{pets}}  \\
+  \hline
+  \textbf{name} & \textbf{type} \\
+  \hline
+  id & integer auto-incremental primary key \\
+  name & text field up to 255 symbols, can not be empty \\
+  \hline
+\end{tabular}
+
+\begin{tabular}{| l | l |}
+  \hline
+  \multicolumn{2}{|c|}{\textbf{cohorts}}  \\
+  \hline
+  \textbf{name} & \textbf{type} \\
+  \hline
+  id & integer auto-incremental primary key \\
+  name & text field up to 255 symbols, can not be empty \\
+  \hline
+\end{tabular}
+
+\begin{tabular}{| l | l |}
+  \hline
+  \multicolumn{2}{|c|}{\textbf{transport\_type}}  \\
+  \hline
+  \textbf{name} & \textbf{type} \\
+  \hline
+  id & integer auto-incremental primary key \\
+  name & text field up to 255 symbols, can not be empty \\
+  \hline
+\end{tabular}
+
+\begin{tabular}{| l | l | }
+  \hline
+  \multicolumn{2}{|c|}{\textbf{assignments}}  \\
+  \hline
+  \textbf{name} & \textbf{type} \\
+  \hline
+  id & integer auto-incremental primary key \\
+  name & text field up to 255 symbols, can not be empty \\
+  \hline
+\end{tabular}
+
+\begin{tabular}{| l | l | }
+  \hline
+  \multicolumn{2}{|c|}{\textbf{students}}  \\
+  \hline
+  \textbf{name} & \textbf{type} \\
+  \hline
+  id & integer auto-incremental primary key \\
+  first\_name & text field up to 255 symbols, can not be empty \\
+  last\_name & text field up to 255 symbols, can not be empty \\
+  dormitory & boolean value, can not be empty \\
+  cohort\_id & integer foreign key, references table cohorts \\
+  pet\_id  & integer foreign key, references table pets \\
+  transport\_type\_id & integer foreign key, references table transport\_types \\
+  \hline
+\end{tabular}
+
+\begin{tabular}{| l | l | }
+  \hline
+  \multicolumn{2}{|c|}{\textbf{students\_assignments}}  \\
+  \hline
+  \textbf{name} & \textbf{type} \\
+  \hline
+  student\_id & integer foreign key, references table students \\
+  assignment\_id & integer foreign key, references table assignments \\
+  value & float, can be empty \\
+  \hline
+  \multicolumn{2}{|p{12cm}|}{ Combination of student\_id and assignment\_id should be used a primary key for this table }  \\
+  \hline
+\end{tabular}
+
+\item Store your SQL code to \code{tables.sql}.
+
+\end{enumerate}
+
+\subsection*{Prepare data for multiple tables}
+
+Now you have a normalized data schema in your database. You can not load your data from a single CSV file anymore; you should create a separate file for each table. You can load previously exported CSV file into any tabular data editor (Google Spreadsheets, MS Excel), and decompose your data into a set of sheets: one sheet for one table, so they can be exported into a separate files.
+
+\begin{enumerate}
+\item Load \code{pets}.
+
+\begin{enumerate}
+\item You will have something like that:
+
+\begin{tabular}{| l | }
+  \hline
+  \textbf{name}  \\
+  \hline
+  Frog \\
+  Cat \\
+  Dog \\
+  Spider \\
+  \hline
+\end{tabular}
+
+\item Export this data to \code{pets.csv}.
+\item Load \code{pets.csv} into the table \code{pets}.
+\item Replace column \code{pet} to \code{pet\_id} in \code{students.csv}. Fill this column with corresponding IDs from the table \code{pets}.
+\end{enumerate}
+
+\item Repeat above steps for \code{cohorts} and \code{transport\_types}.
+
+\item Load \code{students}.
+
+\begin{enumerate}
+\item Check that data structure conforms to the previously created table \code{students}.
+\item Export edited students data to \code{students.csv}.
+\item Load \code{students.csv} into table \code{students}.
+\end{enumerate}
+
+\item Load \code{assignments}.
+
+\begin{enumerate}
+
+\item We have two assignments currently: assignment1 and assignment2. Resulting CSV should be:
+
+\begin{tabular}{| l | }
+  \hline
+  \textbf{name}  \\
+  \hline
+  assignment1 \\
+  assignment2 \\
+  \hline
+\end{tabular}
+
+\item Export this data to \code{assignments.csv}.
+
+\item Load \code{assignments.csv} into table \code{assignments}.
+
+\end{enumerate}
+
+\item Load \code{students\_assignments}.
+
+\begin{enumerate}
+
+\item Generate a sheet with a random assignment values for each combination of \code{student\_id} and {assignment\_id}. Should be like that:
+
+\begin{tabular}{| l | l | l | }
+  \hline
+  \textbf{student\_id} & \textbf{assignment\_id} & \textbf{value} \\
+  \hline
+  1 & 1 & 10.0 \\
+  2 & 1 & 5.0 \\
+  \hline
+\end{tabular}
+
+\item Export this data to \code{students\_assignments.csv}.
+
+\item Load \code{students\_assignments.csv} into table \code{students\_assignments}.
+
+\end{enumerate}
+
+\end{enumerate}
+
+\subsection*{Students summary view}
+
+Now, when you normalized your data, it is not comfortable for a human to check information among multiple relations. In the following sections you will create data view which collets information from multiple tables to solve this problem.
+
+\begin{enumerate}
+\item Create view \code{student\_summary} with a following columns:
+
+\begin{tabular}{| l | l | }
+  \hline
+  \textbf{column} & \textbf{table} \\
+  \hline
+  id & student \\
+  first\_name & student \\
+  last\_name & student \\
+  dormitory & student \\
+  cohort & cohort \\
+  pet  & pets \\
+  transport & transport\_types \\
+  mean\_assignment\_value & mean value for all assignments for this student  \\
+  \hline
+\end{tabular}
+
+\item Store your SQL code to \code{student\_summary.sql}.
+
+\end{enumerate}
+
+\section*{Submission}
+
+Here is a list of files you should include in your submission:
+
+\begin{itemize}
+
+\item \code{tables.sql}
+
+\item \code{pets.csv}
+
+\item \code{cohorts.csv}
+
+\item \code{transport\_types.csv}
+
+\item \code{students.csv}
+
+\item \code{assignments.csv}
+
+\item \code{students\_assignments.csv}
+
+\item \code{student\_summary.sql}
+
+\end{itemize}
+
+To submit your solution, pack all files in a single \textbf{zip} archive. 
+Submit it on assignment page in CMS. After a successful solution upload, you will get a link to the CircleCI build page, which will show you the progress of your solution test.
+
+\uppercase{\textbf{Please test your solution carefully before submission!}}
+
+I give you credit for \textbf{one} submission fail. This means, if your test fails, you can check test response, correct your solution, and resubmit it one time. All the following submission failures will be penalized.
+
+If you have any issues or errors during submission, please contact me or Mykhailo Poliakov.
+
+\clearpage
+
+\section*{Hints}
+How to \dots
+\begin{itemize}
+\item \dots \href{https://dev.mysql.com/doc/workbench/en/wb-admin-export-import-table.html}{export data as csv}.
+
+\item \dots \href{https://dev.mysql.com/doc/refman/8.0/en/create-table-foreign-keys.html}{create a foreign key}.
+
+\item \dots \href{https://www.w3schools.com/sql/sql_join.asp}{join tables}.
+
+\item \dots \href{https://dev.mysql.com/doc/refman/8.0/en/create-view.html}{create a view}.
+
+\item \dots \href{http://www.mysqltutorial.org/mysql-aggregate-functions.aspx}{aggregate mean value from multiple rows}
+
+\end{itemize}
+
+\end{document}
