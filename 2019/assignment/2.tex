@@ -68,7 +68,7 @@ General idea of this assignment is to transform the previously created table stu
 
 \begin{tabular}{| l | l |}
   \hline
-  \multicolumn{2}{|c|}{\textbf{transport\_type}}  \\
+  \multicolumn{2}{|c|}{\textbf{transport\_types}}  \\
   \hline
   \textbf{name} & \textbf{type} \\
   \hline
@@ -98,7 +98,7 @@ General idea of this assignment is to transform the previously created table stu
   first\_name & text field up to 255 symbols, can not be empty \\
   last\_name & text field up to 255 symbols, can not be empty \\
   dormitory & boolean value, can not be empty \\
-  cohort\_id & integer foreign key, references table cohorts \\
+  cohort\_id & integer foreign key, references table cohorts, can not be empty \\
   pet\_id  & integer foreign key, references table pets \\
   transport\_type\_id & integer foreign key, references table transport\_types \\
   \hline
