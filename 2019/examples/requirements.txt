@@ -1,3 +1,4 @@
 jupyter
 mysql-connector
 pandas
+flask
