@@ -2,3 +2,5 @@ jupyter
 mysql-connector
 pandas
 flask
+sqlalchemy
+mysqlclient
