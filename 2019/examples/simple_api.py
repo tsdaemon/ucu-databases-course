@@ -2,6 +2,10 @@ import os
 
 from flask import Flask, jsonify, request, abort, Response
 import mysql.connector
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, class_mapper
+
+from data import Assignment, Base
 
 app = Flask(__name__)
 
@@ -58,7 +62,7 @@ def delete_student(id):
         abort(404)
 
     students.remove(student)
-    return Response('', status=201, mimetype='application/json')
+    return Response('', status=200, mimetype='application/json')
 
 
 @app.route('/cohorts')
@@ -166,6 +170,62 @@ def delete_cohort(id):
         cursor.close()
 
     return jsonify({}), 200
+
+
+def get_session():
+    host = os.environ.get('DB_HOST', 'localhost')
+    engine = create_engine('mysql://root:1qaz2wsx@{host}/university2'.format(host=host))
+    Base.metadata.bind = engine
+    DBSession = sessionmaker(bind=engine)
+    return DBSession()
+
+
+@app.route('/assignments')
+def list_assignments():
+    session = get_session()
+    assignments = session.query(Assignment).all()
+    # import pdb; pdb.set_trace()
+    result = [a.asdict() for a in assignments]
+    return jsonify(result)
+
+
+@app.route('/assignments', methods=['POST'])
+def create_assignment():
+    assignment_json = request.get_json()
+    session = get_session()
+    assignment = Assignment.from_dict(assignment_json)
+    # import pdb; pdb.set_trace()
+    session.add(assignment)
+    session.commit()
+
+    return jsonify(assignment.asdict()), 201
+
+
+@app.route('/assignments', methods=['PUT'])
+def update_assignment():
+    assignment_json = request.get_json()
+    session = get_session()
+    assignment_existing = session.query(Assignment).get(assignment_json['id'])
+    # import pdb; pdb.set_trace()
+    if assignment_existing is None:
+        abort(404)
+
+    assignment_existing.update(assignment_json)
+    session.commit()
+
+    return jsonify(assignment_existing.asdict()), 200
+
+
+@app.route('/assignments/<int:id>', methods=['DELETE'])
+def delete_assignment(id):
+    session = get_session()
+    assignment_existing = session.query(Assignment).get(id)
+    if assignment_existing is None:
+        abort(404)
+
+    session.delete(assignment_existing)
+    session.commit()
+    return Response('', status=200, mimetype='application/json')
 
 
 if __name__ == '__main__':
