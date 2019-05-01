@@ -16,5 +16,5 @@ connection_string = 'mysql://{user}:{password}@{host}/{database}'.format(
     user=user, password=password, database=database, host=host
 )
 
-engine = create_engine()
+engine = create_engine(connection_string)
 Base.metadata.create_all(engine)
