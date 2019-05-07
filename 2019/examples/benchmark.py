@@ -5,7 +5,7 @@ import concurrent.futures
 import string
 import traceback
 
-THREADS = 40
+THREADS = 2
 TOTAL_OPERATIONS = 1000
 MAX_ID = 200
 

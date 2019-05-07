@@ -1,119 +1,86 @@
 from flask import Flask, jsonify, request, abort, Response
-import mysql.connector
+import os
+import json
 
 app = Flask(__name__)
 
+STORAGE_FILE_NAME = "cohorts.json"
 
-def db():
-    conn = mysql.connector.connect(host='localhost', user='root', password='1qaz2wsx', database='university2')
-    return conn
+if not os.path.isfile(STORAGE_FILE_NAME):
+    with open(STORAGE_FILE_NAME, "w") as file:
+        file.write("[]")
 
 
 @app.route('/cohorts')
 def list_cohorts():
-    conn = db()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM cohorts")
-    cohorts = cursor.fetchall()
-    result = [dict(zip(cursor.column_names, c)) for c in cohorts]
-    conn.close()
-    return jsonify(result)
+    with open(STORAGE_FILE_NAME, "r") as file:
+        cohorts = file.read()
+    return cohorts
 
 
 @app.route('/cohorts/<int:id>')
 def get_cohorts(id):
-    try:
-        conn = db()
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM cohorts WHERE id = %s", params=(id,))
-        cohort = cursor.fetchone()
-    except mysql.connector.Error as error:
-        print(error)
-        raise
-    finally:
-        conn.close()
-        cursor.close()
+    with open(STORAGE_FILE_NAME, "r") as file:
+        cohorts = json.load(file)
 
+    cohort = next((c for c in cohorts if c["id"] == id), None)
     if cohort is None:
         abort(404)
-    result = dict(zip(cursor.column_names, cohort))
-    return jsonify(result)
+
+    return jsonify(cohort)
 
 
 @app.route('/cohorts', methods=['POST'])
 def create_cohort():
-
     cohort = request.get_json()
-    if cohort.keys() != {"name"}:
-        abort(422)
 
-    try:
-        conn = db()
-        cursor = conn.cursor()
+    with open(STORAGE_FILE_NAME, "r") as file:
+        cohorts = json.load(file)
 
-        cursor.execute("INSERT INTO cohorts (name) VALUES (%s)", (cohort["name"],))
-        cohort["id"] = cursor.lastrowid
+    last_id = max([e["id"] for e in cohorts], default=0)
+    cohort["id"] = last_id + 1
+    cohorts.append(cohort)
 
-        conn.commit()
-    except mysql.connector.Error as error:
-        print(error)
-        raise
-    finally:
-        conn.close()
-        cursor.close()
+    with open(STORAGE_FILE_NAME, "w") as file:
+        json.dump(cohorts, file)
 
     return jsonify(cohort), 201
 
 
 @app.route('/cohorts', methods=['PUT'])
 def update_cohort():
-
     cohort = request.get_json()
-    if cohort.keys() != {"id", "name"}:
-        abort(422)
+    id = cohort["id"]
 
-    try:
-        conn = db()
-        cursor = conn.cursor()
+    with open(STORAGE_FILE_NAME, "r") as file:
+        cohorts = json.load(file)
 
-        cursor.execute("SELECT * FROM cohorts WHERE id = %s", (cohort['id'],))
-        existing_cohort = cursor.fetchone()
-        if existing_cohort is None:
-            abort(404)
+    old_cohort = next((c for c in cohorts if c["id"] == id), None)
+    if old_cohort is None:
+        abort(404)
 
-        cursor.execute("UPDATE cohorts SET name=%(name)s WHERE id=%(id)s", cohort)
-        conn.commit()
-    except mysql.connector.Error as error:
-        print(error)
-        raise
-    finally:
-        conn.close()
-        cursor.close()
+    old_cohort.update(cohort)
 
-    return jsonify(cohort)
+    with open(STORAGE_FILE_NAME, "w") as file:
+        json.dump(cohorts, file)
+
+    return jsonify(old_cohort)
 
 
 @app.route('/cohorts/<int:id>', methods=['DELETE'])
 def delete_cohort(id):
-    try:
-        conn = db()
-        cursor = conn.cursor()
+    with open(STORAGE_FILE_NAME, "r") as file:
+        cohorts = json.load(file)
 
-        cursor.execute("SELECT * FROM cohorts WHERE id = %s", (id,))
-        existing_cohort = cursor.fetchone()
-        if existing_cohort is None:
-            abort(404)
+    new_cohorts = [*filter(lambda x: x["id"] != id, cohorts)]
 
-        cursor.execute("DELETE FROM cohorts WHERE id = %s", (id,))
-        conn.commit()
-    except mysql.connector.Error as error:
-        print(error)
-        raise
-    finally:
-        conn.close()
-        cursor.close()
+    if len(new_cohorts) == len(cohorts):
+        abort(404)
 
-    return jsonify({}), 200
+    with open(STORAGE_FILE_NAME, "w") as file:
+        json.dump(new_cohorts, file)
+
+    return "", 200
 
 
 if __name__ == '__main__':
