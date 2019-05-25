@@ -14,11 +14,11 @@ journal = []
 
 
 def get_url(id=None):
-    url = 'http://localhost:5000/cohorts'
+    url = 'http://localhost:5000/cohorts/'
     if id is None:
         return url
     else:
-        return url + '/' + str(id)
+        return url + str(id)
 
 
 def random_string(length=10):

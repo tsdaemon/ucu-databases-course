@@ -14,30 +14,48 @@ class SimpleBlock(object):
         self.num = num
         self.lock = Lock()
 
+    def __repr__(self):
+        return "{} block #{}{}".format(
+            self.name,
+            self.num,
+            ", locked" if self.lock.locked() else ""
+        )
+
     def _get_filename(self):
         return "{}{}.json".format(self.name, self.num)
 
-    def read(self):
-        with self.lock:
+    def read(self, lock=True):
+        def _read():
             filename = self._get_filename()
             with open(filename, 'r') as f:
                 return json.load(f)
+        if lock:
+            with self.lock:
+                return _read()
+        else:
+            return _read()
 
-    def write(self, records):
-        with self.lock:
+    def write(self, records, lock=True):
+        def _write():
             filename = self._get_filename()
             with open(filename, 'w') as f:
                 json.dump(records, f)
 
+        if lock:
+            with self.lock:
+                _write()
+        else:
+            _write()
+
 
 class SimpleFilesystemRepository(object):
     def __init__(self, tablename, number_of_elements_in_block=10):
+        self.tablename = tablename
+        self.number_of_elements_in_block = number_of_elements_in_block
+
         self.blocks = self._register_all_blocks(tablename)
         self.last_index = self._get_last_index()
         self.index_lock = Lock()
-
-        self.tablename = tablename
-        self.number_of_elements_in_block = number_of_elements_in_block
 
     def _register_all_blocks(self, tablename):
         all_file_names = glob.glob('{}*.json'.format(tablename))
@@ -56,11 +74,10 @@ class SimpleFilesystemRepository(object):
         last_block = self.blocks[-1]
         records = last_block.read()
         last_index = max((r['id'] for r in records),
-                         default=self.number_of_elements_in_block*len(self.blocks))
+                         default=self.number_of_elements_in_block*(len(self.blocks)-1))
         return last_index
 
     def _get_block_num_by_id(self, id):
-        # import pdb; pdb.set_trace()
         return id // self.number_of_elements_in_block
 
     def get_all(self):
@@ -93,9 +110,9 @@ class SimpleFilesystemRepository(object):
             else:
                 last_block = self.blocks[-1]
                 with last_block.lock:
-                    records = last_block.read()
+                    records = last_block.read(False)
                     records.append(record)
-                    last_block.write(records)
+                    last_block.write(records, False)
 
         return record
 
@@ -108,12 +125,12 @@ class SimpleFilesystemRepository(object):
         update_block = self.blocks[number_of_block]
 
         with update_block.lock:
-            records = update_block.read()
+            records = update_block.read(False)
             old_record = next((r for r in records if r['id'] == id), None)
             if old_record is None:
                 return False
             old_record.update(record)
-            update_block.write(records)
+            update_block.write(records, False)
 
         return True
 
@@ -125,12 +142,12 @@ class SimpleFilesystemRepository(object):
         delete_block = self.blocks[number_of_block]
 
         with delete_block.lock:
-            records = delete_block.read()
+            records = delete_block.read(False)
             index = next((i for i, r in enumerate(records) if r['id'] == id), None)
             if index is None:
                 return False
             records.pop(index)
-            delete_block.write(records)
+            delete_block.write(records, False)
 
         return True
 
@@ -138,7 +155,7 @@ class SimpleFilesystemRepository(object):
 repository = SimpleFilesystemRepository('cohorts')
 
 
-@app.route('/cohorts')
+@app.route('/cohorts/')
 def list_cohorts():
     cohorts = repository.get_all()
     return jsonify(cohorts)
@@ -154,7 +171,7 @@ def get_cohorts(id):
     return jsonify(cohort)
 
 
-@app.route('/cohorts', methods=['POST'])
+@app.route('/cohorts/', methods=['POST'])
 def create_cohort():
     cohort = request.get_json()
 
@@ -163,7 +180,7 @@ def create_cohort():
     return jsonify(cohort), 201
 
 
-@app.route('/cohorts', methods=['PUT'])
+@app.route('/cohorts/', methods=['PUT'])
 def update_cohort():
     cohort = request.get_json()
 
